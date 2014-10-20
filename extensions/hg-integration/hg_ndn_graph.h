@@ -58,6 +58,7 @@ namespace ns3 {
       hg_graph_t * graph;
       // set of nodes
       NodeContainer nodes;
+      PointToPointHelper p2p;
       void init_graph(const hg_graph_t * graph);
     public: 
       static TypeId GetTypeId (void);
@@ -76,6 +77,8 @@ namespace ns3 {
       void print_coordinates() const ;
       // get the nodes
       NodeContainer get_nodes() const;
+      // get neighbors ids
+      vector<int> get_node_neighbors(int node) const;
       // get random node id
       int get_random_node_id() const;
       // check if two nodes belong to the same connected component 

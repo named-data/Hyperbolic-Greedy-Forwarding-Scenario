@@ -65,15 +65,15 @@ namespace ns3 {
 	node_ptr->AggregateObject(hni);
       }
       // Connect NDN nodes according to the graph 
-      PointToPointHelper p2p;
+      // PointToPointHelper p2p;
       int source_node, destination_node;
       hg_graph_t::edge_iterator edgeIt, edgeEnd;
       tie(edgeIt, edgeEnd) = edges(*graph);
       for (; edgeIt != edgeEnd; ++edgeIt) { 
 	source_node = source(*edgeIt, *graph);
 	destination_node = target(*edgeIt, *graph); 
-	// DEBUG std::cout << "T:\t" << source_node << "\t" << destination_node << endl;
-	p2p.Install(this->nodes.Get(source_node), this->nodes.Get(destination_node));
+	// std::cout << "T:\t" << source_node << "\t" << destination_node << endl;
+	this->p2p.Install(this->nodes.Get(source_node), this->nodes.Get(destination_node));
       }
       // reset seed before any other computation
       hg_init_random_generator((*graph)[boost::graph_bundle].seed);
@@ -181,6 +181,20 @@ namespace ns3 {
       }
       return false;      
     }
+
+    vector<int> Hg_ndn_graph::get_node_neighbors(int node) const {
+      vector<int> neighbors_ids;
+      hg_graph_t::adjacency_iterator neighbourIt, neighbourEnd;
+
+      tie(neighbourIt, neighbourEnd) = adjacent_vertices(node, *graph); 
+      int k = 0;
+      for (; neighbourIt != neighbourEnd; ++neighbourIt){ 
+	neighbors_ids.push_back(*neighbourIt);
+      }
+      
+      return neighbors_ids;
+    }
+
 
   } // end of ndn namespace
 } // end of ns3 namespace
