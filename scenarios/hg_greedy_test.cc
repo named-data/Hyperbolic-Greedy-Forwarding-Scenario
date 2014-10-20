@@ -397,13 +397,6 @@ int main (int argc, char **argv) {
       cout << effective_attempts << endl;
     }
 
-  // cout << "Attempts: " << effective_attempts << endl;
-  // cout <<"Successful attempts: ";
-  // cout <<  << endl;
-  // cout <<"Unsuccessful attempts: ";
-  // cout << ns3::ndn::HGConsumer::GetTimeoutDataCount() << endl;
-  // cout << endl;
-
   delete hng;
 
   return 0;
