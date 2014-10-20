@@ -62,7 +62,7 @@ void install_route_on_every_node(ns3::ndn::Hg_ndn_graph *ndn_graph,
 {
 
   std::string prefix = content_prefix; // some prefix
-  int32_t metric = 0;                  // some routing metric
+  uint16_t metric = 0;                  // some routing metric
   uint32_t nNodes = nodes.GetN();
   uint32_t i;    
   ns3::Ptr<ns3::Node> node;
@@ -73,16 +73,21 @@ void install_route_on_every_node(ns3::ndn::Hg_ndn_graph *ndn_graph,
   ns3::Ptr<ns3::ndn::Face> face;
   const hg_graph_t * g = nodes.Get(0)->GetObject<ns3::ndn::Hg_ndn_node_info>()->get_graph_ptr();
 
+  // each node is a possible route toward the destination
   for (i = 0; i < nNodes; ++i) 
     {
-      // if(i == producer)
-      // 	continue;
+      if(i == producer)
+      	continue;
 
       node = nodes.Get(i);
       neighbors = ndn_graph->get_node_neighbors(i);
       for (j = neighbors.begin(); j != neighbors.end(); j++)
 	{
+	  // the idea is to use the metric as a way to
+	  // tell to which node is connected every face
 	  metric = *j;
+	  // adding a new route on node "node": each of its neighbors
+	  // is a good candidate for the prefix
 	  ns3::ndn::StackHelper::AddRoute(node, prefix, nodes.Get(*j), metric);        
 	}
     } 
@@ -371,7 +376,8 @@ int main (int argc, char **argv) {
   }
 
 
-  // ndnGlobalRoutingHelper.CalculateRoutes(false);
+  ndnGlobalRoutingHelper.CalculateRoutes(false);
+
   double total_time = effective_attempts + 20.0;
   // Run Simulator for 5 seconds
   ns3::Simulator::Stop(ns3::Seconds(total_time));

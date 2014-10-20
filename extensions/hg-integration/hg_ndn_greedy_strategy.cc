@@ -100,14 +100,18 @@ namespace ns3 {
 	int r = 0;
 
 
-	cout << "----------------------------------" << endl;
+	cout << "---------------------------------- START" << endl;
 	// Print current node (i.e. the node the inFace belongs to)
 	cout << "On node: " << inFace->GetNode()->GetId() << endl;
 
+	// if I try to get the channel, then I get segfault
 	if(inFace->GetNode()->GetId() == dest_node_id)
 	  return false;
 
+	// loop through all the faces
 	for(faceIterator = faces.begin(); faceIterator != faces.end(); faceIterator++) {	  
+	  // retrieve the two endpoints of the channel
+	  // and select the other "node"
 	  nd = DynamicCast<NetDeviceFace>(faceIterator->GetFace())->GetNetDevice();
 	  ch = nd->GetChannel();
 	  other_node_ptr = ch->GetDevice(0)->GetNode();
@@ -116,18 +120,25 @@ namespace ns3 {
 	      other_node_ptr = ch->GetDevice(1)->GetNode();		
 	    }
 	  other_node_info = other_node_ptr->GetObject<Hg_ndn_node_info>();
-	  // compute hyperbolic distance
+	  // compute hyperbolic distance between the selected neighbor
+	  // and the coordinate of the destination
 	  cur_distance = hg_hyperbolic_distance(other_node_info->get_graph_ptr(),
 						other_node_info->get_coordinate(),
 						dest_coordinate);
+	  // output some debug information
 	  cout << r << ") " << other_node_ptr->GetId() <<  "\t" << cur_distance << endl;	    
 	  r++;
+	  // if it is the first neighbor or if the distance
+	  // is lower than the previous choice, then select 
+	  // the new candidate
 	  if(distance == -1 or cur_distance < distance) {
 	    bestFaceIterator = faceIterator;
 	    best_node = other_node_ptr->GetId();
 	    distance = cur_distance;	    
 	  }
 	  else {
+	    // if there is another node at the same distance
+	    // then decide to switch randomly to another one
 	    if(distance == cur_distance) {
 	      // randomly decide to change interface
 	      if(hg_rand_01_wrapper() < 0.5) {
@@ -143,7 +154,9 @@ namespace ns3 {
 
         int propagatedCount = 0;
 	// bestFaceIterator is the selected face for propagation
-        if (bestFaceIterator != faces.end()) {
+        // if a face has been selected 
+	if (bestFaceIterator != faces.end()) {
+	  // then try to send out the interest
           if (TrySendOutInterest (inFace, bestFaceIterator->GetFace(), interest, pitEntry)) {
             propagatedCount++;        
 	    std::cout << interest->GetName() << "\t";
@@ -151,78 +164,18 @@ namespace ns3 {
 	    std::cout << distance << endl;
 	  }
 	  else{
-	    std::cout << "didn't work" << endl;
+	    // otherwise signal the failure
+	    std::cout << "Didn't work" << endl;
 	    // nothing to do
 	    std::cout << interest->GetName()  << "\t";
 	    std::cout << distance << "\t" << "FAIL" << endl;
 	  }
         }
 
-	cout << "----------------------------------" << endl;
+	cout << "---------------------------------- END" << endl;
 
         return propagatedCount > 0;
 
-
-
-	// // DEBUG INFO: get current node;
-	// cout << "On node: " << inFace->GetNode()->GetId() << " (degree:";
-	// cout << nfaces-1 << ")" << endl; 
-
-	// for (i = 0; i < nfaces-1; i++)
-	//   {
-	//     face = l3p->GetFace(i); 
-	//     nd = DynamicCast<NetDeviceFace>(face)->GetNetDevice();
-	//     ch = nd->GetChannel();
-	//     other_node_ptr = ch->GetDevice(0)->GetNode();
-	//     if(inFace->GetNode()->GetId() == other_node_ptr->GetId())
-	//       {
-	// 	other_node_ptr = ch->GetDevice(1)->GetNode();		
-	//       }
-	//     other_node_info = other_node_ptr->GetObject<Hg_ndn_node_info>();
-	//     // compute hyperbolic distance
-	//     cur_distance = hg_hyperbolic_distance(other_node_info->get_graph_ptr(),
-	// 					  other_node_info->get_coordinate(),
-	// 					  dest_coordinate);
-	//     cout << other_node_ptr->GetId() <<  "\t" << cur_distance << endl;	    
-	//     if(distance == -1 or cur_distance < distance) {
-	//       best_face = i;
-	//       best_node = other_node_ptr->GetId();
-	//       distance = cur_distance;
-
-	//     }
-	//     else {
-	//       if(distance == cur_distance) {
-	// 	// randomly decide to change interface
-	// 	if(hg_rand_01_wrapper() < 0.5) {
-	// 	  best_face = i;
-	// 	  best_node = other_node_ptr->GetId();
-	// 	}
-	//       }
-	//     }
-	//   }
-
-	// cout << "CHOSEN: " << best_node <<  "\t" << cur_distance << endl;	    
-
-        // int propagatedCount = 0;
-	// // bestFaceIterator is the selected face for propagation
-        // if (best_face != -1) {
-        //   if (TrySendOutInterest (inFace, l3p->GetFace(best_face), interest, pitEntry)) {
-        //     propagatedCount++;        
-	//     std::cout << interest->GetName() << "\t";
-	//     std::cout << best_node << "\t";
-	//     std::cout << distance << endl;
-	//   }
-	//   else{
-	//     std::cout << "didn't work" << endl;
-	//     // nothing to do
-	//     std::cout << interest->GetName()  << "\t";
-	//     std::cout << distance << "\t" << "FAIL" << endl;
-	//   }
-        // }
-
-	// cout << "----------------------------------" << endl;
-
-        // return propagatedCount > 0;
       }
 
 
