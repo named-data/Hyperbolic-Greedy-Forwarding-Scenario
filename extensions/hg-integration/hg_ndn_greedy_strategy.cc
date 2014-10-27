@@ -100,9 +100,9 @@ namespace ns3 {
 	int r = 0;
 
 
-	cout << "---------------------------------- START" << endl;
+	//DEBUG cout << "---------------------------------- START" << endl;
 	// Print current node (i.e. the node the inFace belongs to)
-	cout << "On node: " << inFace->GetNode()->GetId() << endl;
+	//DEBUG cout << "On node: " << inFace->GetNode()->GetId() << endl;
 
 	// if on the destination, then send the interest to the
 	// "application face
@@ -136,7 +136,7 @@ namespace ns3 {
 						other_node_info->get_coordinate(),
 						dest_coordinate);
 	  // output some debug information
-	  cout << r << ") " << other_node_ptr->GetId() <<  "\t" << cur_distance << endl;	    
+	  //DEBUG cout << r << ") " << other_node_ptr->GetId() <<  "\t" << cur_distance << endl;	    
 	  r++;
 	  // if it is the first neighbor or if the distance
 	  // is lower than the previous choice, then select 
@@ -160,7 +160,7 @@ namespace ns3 {
 	}
 
 	// Best node according to the  hyperbolic greedy forwarding approach
-	cout << "CHOSEN: " << best_node <<  "\t" << distance << endl;	    
+	//DEBUG cout << "CHOSEN: " << best_node <<  "\t" << distance << endl;	    
 
         int propagatedCount = 0;
 	// bestFaceIterator is the selected face for propagation
@@ -169,20 +169,20 @@ namespace ns3 {
 	  // then try to send out the interest
           if (TrySendOutInterest (inFace, bestFaceIterator->GetFace(), interest, pitEntry)) {
             propagatedCount++;        
-	    std::cout << interest->GetName() << "\t";
-	    std::cout << best_node << "\t";
-	    std::cout << distance << endl;
+	    //DEBUG std::cout << interest->GetName() << "\t";
+	    //DEBUG std::cout << best_node << "\t";
+	    //DEBUG std::cout << distance << endl;
 	  }
 	  else{
 	    // otherwise signal the failure
-	    std::cout << "Didn't work" << endl;
+	    //DEBUG std::cout << "Didn't work" << endl;
 	    // nothing to do
-	    std::cout << interest->GetName()  << "\t";
-	    std::cout << distance << "\t" << "FAIL" << endl;
+	    //DEBUG std::cout << interest->GetName()  << "\t";
+	    //DEBUG std::cout << distance << "\t" << "FAIL" << endl;
 	  }
         }
 
-	cout << "---------------------------------- END" << endl;
+	//DEBUG cout << "---------------------------------- END" << endl;
 
         return propagatedCount > 0;
 

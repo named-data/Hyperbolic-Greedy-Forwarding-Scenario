@@ -385,15 +385,22 @@ int main (int argc, char **argv) {
 
   if(effective_attempts == 0)
     {
-      cout << "No valid attempt found" << endl;
+      cout << "SR" << "\t" << "-1";
+      if(verbose)
+	{
+	  cout << "No valid attempt found." << endl;
+	}
     }
   else
     {
       cout << "SR" << "\t";
       cout << (double) ns3::ndn::HGConsumer::GetReceivedDataCount() / (double) effective_attempts << endl;
-      cout << ns3::ndn::HGConsumer::GetReceivedDataCount() << endl;
-      cout << ns3::ndn::HGConsumer::GetTimeoutDataCount() << endl;
-      cout << effective_attempts << endl;
+      if(verbose)
+	{
+	  cout << "Received data: " << ns3::ndn::HGConsumer::GetReceivedDataCount() << endl;
+	  cout << "Timed-out interests: " << ns3::ndn::HGConsumer::GetTimeoutDataCount() << endl;
+	  cout << "Effective attempts: " << effective_attempts << endl;
+	}
     }
 
   delete hng;

@@ -65,7 +65,7 @@ namespace ns3 {
     
     void HGConsumer::OnData (Ptr<const Data> contentObject) {      
       Consumer::OnData(contentObject);
-      std::cout  << "RECEIVED" << std::endl;
+      //DEBUG std::cout  << "RECEIVED" << std::endl;
       NS_LOG_DEBUG ("Received Data packet");
       received_data++;
     }
