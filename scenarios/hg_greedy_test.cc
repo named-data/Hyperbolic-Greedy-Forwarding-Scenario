@@ -375,7 +375,6 @@ int main (int argc, char **argv) {
     install_route_on_every_node(hng,nodes, producer_node, content_prefix.str());
   }
 
-
   ndnGlobalRoutingHelper.CalculateRoutes(false);
 
   double total_time = effective_attempts + 20.0;

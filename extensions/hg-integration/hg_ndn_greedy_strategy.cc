@@ -104,9 +104,19 @@ namespace ns3 {
 	// Print current node (i.e. the node the inFace belongs to)
 	cout << "On node: " << inFace->GetNode()->GetId() << endl;
 
-	// if I try to get the channel, then I get segfault
+	// if on the destination, then send the interest to the
+	// "application face
 	if(inFace->GetNode()->GetId() == dest_node_id)
-	  return false;
+	  {
+	    if (TrySendOutInterest (inFace, faces.begin()->GetFace(), interest, pitEntry)) 
+	      {
+		return true;
+	      }
+	    else
+	      {
+	      return false;
+	    }
+	  }
 
 	// loop through all the faces
 	for(faceIterator = faces.begin(); faceIterator != faces.end(); faceIterator++) {	  
