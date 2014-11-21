@@ -15,7 +15,7 @@ export PKG_CONFIG_PATH=/path_to_ndnsim/lib/pkgconfig
 ``` 
 before the waf configuration step.
 
-This scenario builds two commandline tools: **hg_graph_test** and **hg_greedy_test**.
+The previous steps build two command-line tools: **hg_graph_test** and **hg_greedy_test**.
 
 ### hg_graph_test
 A template scenario that shows how hyperbolic graphs can be loaded and used in an ndnSIM environment. 
