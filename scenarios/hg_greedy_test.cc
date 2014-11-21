@@ -385,7 +385,7 @@ int main (int argc, char **argv) {
 
   if(effective_attempts == 0)
     {
-      cout << "SR" << "\t" << "-1";
+      cout << "SR" << "\t" << "-1" << endl;
       if(verbose)
 	{
 	  cout << "No valid attempt found." << endl;
