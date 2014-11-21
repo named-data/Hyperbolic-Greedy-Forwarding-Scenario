@@ -1,29 +1,3 @@
-/*
- * The HG-graphs package
- *
- * Chiara Orsini, CAIDA, UC San Diego
- * chiara@caida.org
- *
- * Copyright (C) 2014 The Regents of the University of California.
- *
- * This file is part of the HG-graphs package.
- *
- * The HG-graphs package is free software: you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as published
- * by the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * The HG-graphs package is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with theHG-graphs package.
- * If not, see <http://www.gnu.org/licenses/>.
- *
- */
-
 // standard libraries
 #include <iostream>
 #include <ctype.h>
@@ -56,23 +30,19 @@
 using namespace std;
 
 
-void usage (string exe_name)
-{
+void usage (string exe_name){
   cout << "NAME: " << endl;
-  cout << "\t" << "hg_greedy_test" << " - test the performances of the greedy forwarding strategy" << endl;
-  cout << "\t" << "\t" << "\t" << " in a ndnSIM scenario that simulates a network embedded" << endl;
-  cout << "\t" << "\t" << "\t" << " into a hyperbolic space." << endl;
+  cout << "\t" << "hg_graph_test" << " - create or load a graph into a ndnSIM scenario " << endl;
+  cout << "\t" << "\t" << "\t" << "that simulates a network embedded" << endl;
+  cout << "\t" << "\t" << "\t" << "into a hyperbolic space." << endl;
   cout << endl;
   cout << "SYNOPSIS: " << endl;
-  cout << "\t" << "hg_greedy_test" << " [options] [args] " << endl;
+  cout << "\t" << "hg_graph_test" << " [options] [args] " << endl;
   cout << endl;
   cout << "DESCRIPTION:" << endl;
   cout << "\t" << "Build a graph embedded into an hyperbolic space (or load the topology and" << endl;
   cout << "\t" << "its geometry from a file) according to the specifications described in" << endl;
-  cout << "\t" << "http://dx.doi.org/10.1103/PhysRevE.82.036106 and it computes the greedy" << endl;
-  cout << "\t" << "routing success ratio simulating random nodes sending interest packets" << endl;
-  cout << "\t" << "to other (random) nodes over the network." << endl;
-  cout << "\t" << "The program outputs the success ratio at the end of the simulation." << endl;
+  cout << "\t" << "http://dx.doi.org/10.1103/PhysRevE.82.036106." << endl;
   cout << endl;
   cout << endl;
   cout << "OPTIONS:"<< endl;
@@ -95,17 +65,15 @@ void usage (string exe_name)
   cout << endl;
   cout << "\t" << "-f" << "\t" << "graph file name, load graph from (.hg) file" << endl; 
   cout << endl;
-  cout << "\t" << "-a" << "\t" << "number of attempts" << endl;
-  cout << "\t" << "\t" << "default value is 10 x number of nodes" << endl;
   cout << "\t" << "-h" << "\t" << "print help menu" << endl; 
-  cout << "\t" << "-v" << "\t" << "verbose (print information about the random producers,consumers" << endl;
-  cout << "\t" << "\t" << "that have been selected for testing)" << endl; 
+  cout << "\t" << "-v" << "\t" << "verbose (print information about the graph)" << endl;
   cout << endl;
   return;
 }
 
-int main (int argc, char **argv)
-{
+int main (int argc, char **argv) {
+
+
   int n = 1000;         // number of nodes in the graph
   double k_bar = 10;    // expected average degree
   double exp_gamma = 2; // expected gamma or gamma out
@@ -122,8 +90,6 @@ int main (int argc, char **argv)
 
   string graph_filename = ""; // name of the file to load
 
-  int num_attempts = 0;
-
   bool verbose = false;  // verbose is false by default
 
   char *cvalue = NULL;
@@ -131,7 +97,7 @@ int main (int argc, char **argv)
   int c;
   opterr = 0;
 
-  while ((c = getopt (argc, argv, "cf:n:k:g:t:z:s:a:hv")) != -1) {
+  while ((c = getopt (argc, argv, "cf:n:k:g:t:z:s:hv")) != -1) {
     switch (c) {
     case 'c':
       c_set = true;
@@ -158,9 +124,6 @@ int main (int argc, char **argv)
       break;
     case 's':
       seed = atoi(optarg);
-      break;
-    case 'a':
-      num_attempts = atoi(optarg);
       break;
     case 'v':
       verbose = true;
@@ -254,129 +217,45 @@ int main (int argc, char **argv)
   // get ndn nodes
   ns3::NodeContainer nodes = hng->get_nodes();
   uint32_t nNodes = nodes.GetN();
-  if(num_attempts == 0)
-    {
-      num_attempts = 10 * nNodes;
-    }
+
   if(verbose)
     {
-      cout << endl;
-      cout << "-> created topology with " << nNodes << " nodes." << endl;
-      cout << "-> attempting " << num_attempts << " interest requests" << endl;
+      cout << "Created topology with " << nNodes << " nodes." << endl;
     }
 
   // customize nodes - info @ http://ndnsim.net/helpers.html
 
   // Install NDN stack on all nodes
   ns3::ndn::StackHelper ndnHelper;
-  ndnHelper.SetForwardingStrategy ("ns3::ndn::fw::Hg_ndn_greedy_strategy");
   ndnHelper.Install(nodes);      
 
   // Install ndnGlobalRoutingHelper on all nodes
   ns3::ndn::GlobalRoutingHelper ndnGlobalRoutingHelper;
   ndnGlobalRoutingHelper.Install(nodes);  
      
-  int effective_attempts = 0;
-  double attempt_time = 1;
-  int a;
-  int producer_node;
-  int consumer_node;
-  stringstream content_prefix;
-  stringstream request_time;
 
-  // Create Producers Vector
-  vector<ns3::ndn::AppHelper> producers;
-  // Create Consumers Vector
-  vector<ns3::ndn::AppHelper> consumers;
+  // CONFIGURE YOUR SIMULATION HERE
 
-  for(a = 0; a < num_attempts; a++) {
-
-    // extract a random producer and a random consumer
-    producer_node = hng->get_random_node_id();
-    consumer_node = hng->get_random_node_id();
-        
-    if(producer_node == consumer_node or
-       !hng->same_connected_component(producer_node,consumer_node)) {
-      continue;
-    }
-    effective_attempts++;
-
-    // Print consumer - producer
-    if(verbose)
-      {
-	cout << endl;
-	cout << effective_attempts << ") Consumer - Producer:" << endl;
-	cout << "\t" << consumer_node << " - " << producer_node << endl;
-      }
-
-    // preparing content name
-    content_prefix.str("");
-    content_prefix << "/" << producer_node << "/prefix_" << effective_attempts;
-    if(verbose)
-      {
-	cout << "\t" << "Interest name: " << content_prefix.str() << endl;
-      }
-
-    // Producer will reply to all requests starting with /producer/prefix
-    ns3::ndn::AppHelper producerHelper("ns3::ndn::Producer");
-    producerHelper.SetPrefix (content_prefix.str().c_str());
-    producerHelper.SetAttribute ("PayloadSize", ns3::StringValue("1024"));
-    producerHelper.Install(nodes.Get(producer_node)); 
-    producers.push_back(producerHelper);
-    
-    // Consumer will request /producer/prefix/0, /producer/prefix/1, ...
-    ns3::ndn::AppHelper consumerHelper ("ns3::ndn::HGConsumer");  
-    consumerHelper.SetPrefix(content_prefix.str().c_str());    
-    request_time.str("");
-    request_time << attempt_time + 1.0 << "s 1";
-    if(verbose)
-      {
-	cout << "\t" << "Request scheduled at time: " << attempt_time + 1.0 << endl;
-      }
-    
-    // ask for 1 data transfer every second    
-    consumerHelper.SetAttribute ("Batches", ns3::StringValue(request_time.str().c_str()));
-    consumerHelper.Install(nodes.Get(consumer_node));
-    consumers.push_back(consumerHelper);
-
-    // install hg route
-    hg_install_route(hng, nodes, producer_node, content_prefix.str(), ndnGlobalRoutingHelper);
-
-    // increment attempt time
-    attempt_time++;
-    
-  }
-
-  // Add 20 more seconds to the simulator time to allow
-  // transmission retries
-  double total_time = effective_attempts + 20.0;
+  
+  // 20 seconds simulation
+  double total_time = 20.0;
 
   // Run Simulator
   ns3::Simulator::Stop(ns3::Seconds(total_time));
+  
+  if(verbose)
+    {
+      cout << "Simution started." << endl;
+    }
   ns3::Simulator::Run();
+
+  if(verbose)
+    {
+      cout << "Simution ended." << endl;
+    }
   ns3::Simulator::Destroy();
 
-  if(effective_attempts == 0)
-    {
-      cout << "SR" << "\t" << "-1" << endl;
-      if(verbose)
-	{
-	  cout << "No valid attempt found." << endl;
-	}
-    }
-  else
-    {
-      // Print the success ratio
-      cout << "SR" << "\t";
-      cout << (double) ns3::ndn::HGConsumer::GetReceivedDataCount() / (double) effective_attempts << endl;
-      if(verbose)
-	{
-	  cout << "Received data: " << ns3::ndn::HGConsumer::GetReceivedDataCount() << endl;
-	  cout << "Timed-out interests: " << ns3::ndn::HGConsumer::GetTimeoutDataCount() << endl;
-	  cout << "Effective attempts: " << effective_attempts << endl;
-	}
-    }
-
+  // deallocate memory for hyperbolic graph network
   delete hng;
 
   return 0;
