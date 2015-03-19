@@ -1,7 +1,8 @@
 Hyperbolic-Greedy-Forwarding-Scenario
 =====================================
 
-Hyperbolic-Greedy-Forwarding-Scenario is a ndnSIM scenario that can be used to run simulations on networks embedded into a hyperbolic space. The scenario contains two tools that can be used as templates for more complex simulations.
+Hyperbolic-Greedy-Forwarding-Scenario is a ndnSIM scenario that can be used to run simulations on networks embedded into a hyperbolic space (see http://arxiv.org/abs/1503.05180 for more details on the underlying graph generator).
+The scenario contains two tools that can be used as templates for more complex simulations.
 
 This scenario can be built using the usual waf commands:
 ```bash
